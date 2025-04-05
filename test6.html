@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>ArcGIS Maps SDK Example</title>
+    
+    <!-- 加载ArcGIS API样式 -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css">
+    
+    <!-- 加载ArcGIS API核心库 -->
+    <script src="https://js.arcgis.com/4.32/"></script>
+    
+    <style>
+        html, body, #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+        
+        #header {
+            height: 60px;
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        #basemapGallery {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            z-index: 100;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h2>地图展示系统</h2>
+    </div>
+    
+    <div id="viewDiv"></div>
+    
+    <div id="basemapGallery" class="esri-widget">
+        <h3>底图选择</h3>
+        <div id="basemapButtons"></div>
+    </div>
+
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+            "esri/widgets/ScaleBar",
+            "esri/widgets/Legend",
+            "esri/widgets/Search",
+            "esri/widgets/LayerList",
+            "esri/widgets/BasemapGallery",
+            "esri/config"
+        ], function(
+            Map, MapView, FeatureLayer, ScaleBar, Legend, Search, LayerList, BasemapGallery, esriConfig
+        ) {
+            // 设置语言为中文
+            esriConfig.locale = "zh-cn";
+
+            // 创建地图实例
+            const map = new Map({
+                basemap: "streets-vector"
+            });
+
+            // 创建地图视图
+            const view = new MapView({
+                container: "viewDiv",
+                map: map,
+                center: [116.4, 39.9], // 北京坐标
+                zoom: 12
+            });
+
+            // 添加专题图层（示例使用ArcGIS Online公开图层）
+            const featureLayer = new FeatureLayer({
+                url: "https://services.arcgis.com/V6ZHFr6zdgNZuVg0/arcgis/rest/services/World_Cities/FeatureServer/0"
+            });
+            map.add(featureLayer);
+
+            // 添加比例尺
+            const scaleBar = new ScaleBar({
+                view: view,
+                unit: "metric"
+            });
+            view.ui.add(scaleBar, "bottom-left");
+
+            // 添加图例
+            const legend = new Legend({
+                view: view,
+                layerInfos: [{
+                    layer: featureLayer,
+                    title: "城市图层"
+                }]
+            });
+            view.ui.add(legend, "bottom-right");
+
+            // 添加搜索框
+            const search = new Search({
+                view: view
+            });
+            view.ui.add(search, "top-right");
+
+            // 添加图层列表
+            const layerList = new LayerList({
+                view: view
+            });
+            view.ui.add(layerList, "top-left");
+
+            // 创建底图库
+            const basemapGallery = new BasemapGallery({
+                view: view,
+                container: document.createElement("div")
+            });
+            
+            // 将底图库添加到页面指定位置
+            const basemapGalleryContainer = document.getElementById("basemapButtons");
+            basemapGalleryContainer.appendChild(basemapGallery.domNode);
+        });
+    </script>
+</body>
+</html>
